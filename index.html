@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>拾藏 · 让收藏不再吃灰</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- 顶部栏 -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark">拾</span>
+        <span class="brand-name">拾藏</span>
+        <span class="brand-slogan">让收藏不再吃灰</span>
+      </div>
+      <div class="topbar-right">
+        <span class="source-tag" id="sourceTag">示例数据</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- ========== 视图 1：导入 / 欢迎页 ========== -->
+    <section class="view view-welcome" id="viewWelcome">
+      <div class="welcome-card">
+        <div class="welcome-icon">📚</div>
+        <h1>你的收藏夹，还躺在那里吃灰吗？</h1>
+        <p class="welcome-sub">
+          知乎收藏了 <span id="welcomeCount">69</span> 条，真正回看的不到 5%。<br />
+          拾藏帮你把收藏变成「核心观点 + 复习卡片」，每天 10 分钟，从「存过」到「学会」。
+        </p>
+        <button class="btn btn-primary" id="btnStart">开始使用</button>
+        <button class="btn btn-ghost" id="btnAISetup">⚙️ 配置 AI 提炼</button>
+        <div class="welcome-note">已接入你的知乎收藏 · 数据仅存本地</div>
+        <div class="ai-status-badge" id="aiStatusBadge"></div>
+      </div>
+    </section>
+
+    <!-- ========== 视图 2：收藏列表 ========== -->
+    <section class="view" id="viewList" hidden>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">收藏</div></div>
+        <div class="stat"><div class="stat-num" id="statReady">0</div><div class="stat-label">已提炼</div></div>
+        <div class="stat"><div class="stat-num" id="statMastered">0</div><div class="stat-label">已掌握</div></div>
+        <div class="stat"><div class="stat-num" id="statDue">0</div><div class="stat-label">待复习</div></div>
+      </div>
+      <div class="list-head">
+        <div class="section-title">全部收藏 <span class="section-sub" id="listGroupTitle"></span></div>
+        <div class="list-head-actions">
+          <button class="btn btn-ghost btn-sort" id="btnSort">最新优先 ⇅</button>
+          <button class="btn btn-ghost btn-import" id="btnReextractAll" title="用最新全文重新提炼所有已提炼的收藏（升级旧卡片）">🔄 全文重提炼</button>
+          <button class="btn btn-ghost btn-import" id="btnImport">＋ 导入</button>
+        </div>
+      </div>
+      <div id="topicTabs" class="topic-tabs"></div>
+      <div id="collectionList" class="collection-list"></div>
+    </section>
+
+    <!-- ========== 视图 3：详情页 ========== -->
+    <section class="view" id="viewDetail" hidden>
+      <button class="btn-back detail-back" id="btnBackList">← 返回收藏</button>
+      <div class="detail-card">
+        <div class="detail-meta">
+          <span class="chip chip-topic" id="detailTopic"></span>
+          <span class="chip" id="detailType"></span>
+          <span class="chip" id="detailStatus"></span>
+        </div>
+        <h2 id="detailTitle"></h2>
+        <p class="detail-saved">收藏于 <span id="detailSaved"></span></p>
+
+        <div class="detail-section">
+          <div class="detail-section-row">
+            <div class="detail-section-title">原文内容</div>
+            <a class="source-link" id="detailSourceLink" href="#" target="_blank" rel="noopener">在知乎查看原文 ↗</a>
+          </div>
+          <div class="source-note" id="detailSourceNote"></div>
+          <div class="detail-content" id="detailContent"></div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">AI 提炼</div>
+          <div id="detailExtract">
+            <div class="empty-hint">尚未提炼，点击下方按钮生成核心观点与复习卡片。</div>
+            <button class="btn btn-primary" id="btnExtract">✨ 生成观点与卡片</button>
+          </div>
+          <div id="detailExtractResult" hidden>
+            <div class="core-points" id="detailCore"></div>
+            <div class="card-preview-title">复习卡片（<span id="detailCardCount">0</span> 张）</div>
+            <div class="card-list" id="detailCards"></div>
+            <button class="btn btn-ghost" id="btnReviewNow">去复习这张卡</button>
+          </div>
+        </div>
+
+        <div class="detail-footer">
+          <button class="btn btn-danger" id="btnDeleteItem">删除这篇收藏</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 视图 4：复习页 ========== -->
+    <section class="view" id="viewReview" hidden>
+      <div class="review-top">
+        <div class="section-title">今日复习</div>
+        <div class="review-progress" id="reviewProgress"></div>
+      </div>
+      <div id="reviewEmpty" class="empty-state">
+        <div class="empty-icon">🎉</div>
+        <div>今天的队列复习完了，收藏夹又「学会」了一点。</div>
+      </div>
+      <div id="reviewArea" class="review-area" hidden>
+        <div class="review-card" id="reviewCard">
+          <div class="review-label" id="reviewLabel"></div>
+          <div class="review-question" id="reviewQuestion"></div>
+          <div class="review-answer" id="reviewAnswer" hidden></div>
+        </div>
+        <div class="review-actions" id="reviewActions">
+          <button class="btn btn-primary" id="btnShowAnswer">显示答案</button>
+        </div>
+        <div class="review-grade" id="reviewGrade" hidden>
+          <div class="grade-hint">这次记得怎么样？</div>
+          <div class="grade-buttons">
+            <button class="btn grade grade-forgot" data-grade="0">忘了</button>
+            <button class="btn grade grade-fuzzy" data-grade="1">模糊</button>
+            <button class="btn grade grade-good" data-grade="2">记得</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 视图 5：知识地图 ========== -->
+    <section class="view" id="viewMap" hidden>
+      <div class="section-title">知识地图</div>
+      <div class="map-insight" id="mapInsight"></div>
+      <div class="map-grid" id="mapGrid"></div>
+    </section>
+
+    <!-- ========== 视图 6：知识周报 ========== -->
+    <section class="view" id="viewReport" hidden>
+      <div class="section-title">知识周报</div>
+      <div class="report-week" id="reportWeek"></div>
+      <div class="report-stats" id="reportStats"></div>
+      <div class="report-section-title">收藏转化漏斗</div>
+      <div class="funnel" id="reportFunnel"></div>
+      <div class="report-section-title">主题转化分布</div>
+      <div id="reportTopics"></div>
+      <div class="report-section-title">吃灰最久的收藏</div>
+      <div id="reportOldest"></div>
+      <div class="report-section-title">今天该复习</div>
+      <div id="reportDue"></div>
+    </section>
+
+  </main>
+
+  <!-- 导入弹窗 -->
+  <div class="modal-mask" id="importMask" hidden>
+    <div class="modal">
+      <div class="modal-title">导入知乎全文</div>
+      <div class="modal-sub">在知乎页面用「拾藏」插件抓取后复制 JSON，粘贴到这里即可（可一次导入多条）</div>
+      <textarea id="importJson" placeholder='{"title": "文章标题", "url": "https://…", "content": "完整正文…"}'></textarea>
+      <div class="modal-error" id="importError" hidden></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btnImportCancel">取消</button>
+        <button class="btn btn-primary" id="btnImportConfirm">导入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <nav class="tabbar" id="tabbar" hidden>
+    <button class="tab active" data-view="viewList"><span class="tab-icon">📥</span><span>收藏</span></button>
+    <button class="tab" data-view="viewReview"><span class="tab-icon">⏰</span><span>复习</span></button>
+    <button class="tab" data-view="viewMap"><span class="tab-icon">🗺️</span><span>地图</span></button>
+    <button class="tab" data-view="viewReport"><span class="tab-icon">📊</span><span>周报</span></button>
+  </nav>
+
+  <!-- 导入成功弹窗 -->
+  <div class="modal-mask" id="importSuccessMask" hidden>
+    <div class="modal">
+      <div class="modal-title">导入成功 🎉</div>
+      <div class="modal-sub" id="importSuccessSub"></div>
+      <div id="importSuccessList" class="import-success-list"></div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btnSuccessClose">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div class="modal-mask" id="delMask" hidden>
+    <div class="modal">
+      <div class="modal-title">删除这篇收藏？</div>
+      <div class="modal-sub">删除后不可恢复，它的观点卡片与复习记录也会一并移除。</div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btnDelCancel">取消</button>
+        <button class="btn btn-danger-solid" id="btnDelConfirm">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 配置弹窗 -->
+  <div class="modal-mask" id="llmMask" hidden>
+    <div class="modal">
+      <div class="modal-title">接入 AI 提炼</div>
+      <div class="modal-sub">填入你的大模型 API（OpenAI 兼容格式）。Key 仅保存在本机浏览器（localStorage），不会写入代码或上传。</div>
+      <label class="field-label">API 地址（以 /chat/completions 结尾）</label>
+      <input id="llmEndpoint" class="modal-input" placeholder="https://api.example.com/v1/chat/completions" spellcheck="false" />
+      <label class="field-label">模型名</label>
+      <input id="llmModel" class="modal-input" placeholder="model-name" spellcheck="false" />
+      <label class="field-label">API Key</label>
+      <input id="llmKey" class="modal-input" type="password" placeholder="sk-..." spellcheck="false" />
+      <div class="modal-error" id="llmError" hidden></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btnLlmCancel">取消</button>
+        <button class="btn btn-primary" id="btnLlmSave">保存并启用</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 回到顶部（底部居中文字条） -->
+  <div class="to-top-bar" id="toTopBar" hidden>
+    <button id="btnTop">↑ 回到顶部</button>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/sm2.js"></script>
+  <script src="js/llm.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
