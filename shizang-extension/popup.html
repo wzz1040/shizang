@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    :root {
+      --accent: #0a84ff;
+      --ink: #1d1d1f;
+      --ink-sub: #6e6e73;
+      --ink-faint: #aeaeb2;
+      --border: #e5e5ea;
+      --card: #ffffff;
+      --gray-soft: #f5f5f7;
+      --green: #34c759;
+      --red: #ff3b30;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 340px; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--card); color: var(--ink); padding: 16px;
+    }
+    .head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .brand {
+      width: 26px; height: 26px; border-radius: 8px;
+      background: linear-gradient(135deg, #0a84ff, #5ac8fa);
+      color: #fff; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .head h1 { font-size: 15px; font-weight: 700; }
+    .status {
+      font-size: 12px; color: var(--ink-sub); background: var(--gray-soft);
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.5;
+    }
+    .status.ok { background: #e9f9ef; color: #1d7f3d; }
+    .status.err { background: #ffeceb; color: var(--red); }
+    .meta { font-size: 12px; color: var(--ink-faint); margin-bottom: 10px; word-break: break-all; }
+    textarea {
+      width: 100%; height: 140px; border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px; font-size: 11px; font-family: ui-monospace, Consolas, monospace;
+      resize: vertical; color: var(--ink); background: var(--gray-soft);
+    }
+    .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+    button {
+      flex: 1; border: none; border-radius: 10px; padding: 10px 0;
+      font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost { background: var(--gray-soft); color: var(--ink); }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .tip { font-size: 11px; color: var(--ink-faint); margin-top: 10px; line-height: 1.6; }
+    .tip b { color: var(--accent); }
+    .batch-status {
+      font-size: 12px; color: var(--ink-sub); background: var(--gray-soft);
+      border-radius: 10px; padding: 8px 12px; margin-top: 10px; line-height: 1.5;
+    }
+    .batch-status.run { background: #e8f2ff; color: #0a2f66; }
+    .head { position: relative; }
+    .link-btn {
+      margin-left: auto; background: none; border: none; color: var(--accent);
+      font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 6px;
+      flex: 0 0 auto; font-family: inherit;
+    }
+    .link-btn:hover { opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <div class="brand">拾</div>
+    <h1>拾藏 · 抓取知乎全文</h1>
+    <button class="link-btn" id="btnOpenShizang">打开拾藏 ↗</button>
+  </div>
+
+  <div class="status" id="status">正在读取当前页面…</div>
+  <div class="meta" id="meta" hidden></div>
+  <textarea id="json" placeholder="点击「抓取并生成」后，这里会出现可导入拾藏的 JSON" readonly></textarea>
+
+  <div class="btn-row">
+    <button class="btn-primary" id="btnGrab" disabled>抓取并生成</button>
+    <button class="btn-ghost" id="btnOpen" hidden>打开拾藏查看 ↗</button>
+    <button class="btn-ghost" id="btnCopy" disabled>复制 JSON</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn-ghost" id="btnBatch">批量补全全文</button>
+    <button class="btn-ghost" id="btnBatchStop" hidden>停止补全</button>
+  </div>
+  <div class="batch-status" id="batchStatus" hidden></div>
+
+  <div class="tip">
+    <b>使用</b>：在知乎文章/回答页点击本插件 → 抓取。若拾藏页面已打开，会自动导入；
+    否则生成 JSON，复制后到拾藏列表页「＋ 导入」粘贴。
+  </div>
+  <div class="tip">
+    <b>存量升级</b>：打开知乎收藏夹页面（collection/…），本插件会自动把整页收藏导入；
+    点「批量补全全文」把拾藏里所有摘要版收藏升级为完整正文（工具栏图标显示进度）。
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
