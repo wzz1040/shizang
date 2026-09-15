@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "拾藏 · 一键抓取知乎全文",
+  "version": "0.2.0",
+  "description": "在知乎页面自动抓取完整正文，导入/回填拾藏知识系统（收藏夹 → 知识卡片 → 间隔复习）",
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "scripting",
+    "tabs",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://www.zhihu.com/*",
+    "https://zhuanlan.zhihu.com/*",
+    "https://*.github.io/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "拾藏 · 抓取本文"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "file://*/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*",
+        "https://*.github.io/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.zhihu.com/*",
+        "https://zhuanlan.zhihu.com/*"
+      ],
+      "js": [
+        "extract.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
